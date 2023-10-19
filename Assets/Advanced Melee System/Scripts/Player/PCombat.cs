@@ -4,7 +4,6 @@ using UnityEngine.Events;
 public class PCombat : MonoBehaviour
 {
     [SerializeField] UnityEvent OnSuccesFullParry;
-    private Collider _collider;
     [SerializeField] Animator anim;
     public bool _parry;
     private float waitTime;
@@ -15,13 +14,11 @@ public class PCombat : MonoBehaviour
     public bool blocking;
     public float posture;
     private bool postureBroken = false;
-    [SerializeField] private float postureRegenTime;
 
     // Start is called before the first frame update
     void Start()
     {
         anim = GetComponent<Animator>();
-        _collider = GetComponent<Collider>();
     }
 
     // Update is called once per frame
@@ -107,18 +104,6 @@ public class PCombat : MonoBehaviour
             postureBroken = true; // Prevent multiple calls to PostureBreak
             anim.SetTrigger("isPosture");
             
-        }
-    }
-    
-
-    // OnCollisionEnter for applying posture damage to player
-    private void OnCollisionEnter(Collision collision)
-    {
-        print(collision.collider.tag);
-        if (blocking && collision.collider.CompareTag("Sword"))
-        {
-            // Reduce posture by 25 when hit by enemy's weapon
-            ApplyPostureDamage(25.0f);
         }
     }
 }
