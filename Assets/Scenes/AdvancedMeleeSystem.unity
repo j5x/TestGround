@@ -5843,6 +5843,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Speed: 10
+  JumpHeight: 10
   anim: {fileID: 1409700638}
   Cam: {fileID: 952260347}
 --- !u!1 &1513651021
@@ -10900,7 +10901,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 919132148613498607}
   m_LocalRotation: {x: -0, y: -0.95365006, z: -0, w: 0.30091792}
-  m_LocalPosition: {x: -3.0893013, y: 1.3, z: 4.348491}
+  m_LocalPosition: {x: -3.0893013, y: 1.302, z: 4.348491}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
