@@ -1,72 +1,139 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMove : MonoBehaviour
 {
-    CharacterController Controller;
-    public float Speed;
-    public float JumpHeight;
-    private bool isGrounded;
-    private bool isJumping = false;
-    private float verticalSpeed = 0f;
-    [SerializeField] private Animator anim;
-    public Transform Cam;
+    CharacterController controller;
+    public float speed;
+    public float jumpHeight;
 
-    // Start is called before the first frame update
+    private bool isGrounded;
+    private float verticalSpeed = 0f;
+
+    [SerializeField] private Animator anim;
+    public Transform cam;
+
+    private bool isDodging = false;
+    private float dodgeTimer = 0f;
+    public float dodgeDistance = 5f;
+    public float dodgeDuration = 0.5f;
+
     void Start()
     {
-        Controller = GetComponent<CharacterController>();
+        controller = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        isGrounded = Controller.isGrounded;
+        CheckGrounded();
 
-        float Horizontal = Input.GetAxis("Horizontal");
-        float Vertical = Input.GetAxis("Vertical");
+        if (!isDodging)
+        {
+            HandleMovement();
+            HandleJump();
+            HandleDodge();
+        }
+        else
+        {
+            Dodge();
+        }
+    }
+
+    void CheckGrounded()
+    {
+        isGrounded = controller.isGrounded;
 
         if (isGrounded && verticalSpeed < 0)
         {
             verticalSpeed = 0f;
         }
+    }
 
-        if (Input.GetButtonDown("Jump") && isGrounded)
+    void HandleMovement()
+    {
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        AnimateMovement(horizontal, vertical);
+
+        Vector3 movement = CalculateMovement(horizontal, vertical);
+
+        if (movement.magnitude != 0f)
         {
-            isJumping = true;
-            verticalSpeed = Mathf.Sqrt(JumpHeight * -2f * Physics.gravity.y);
+            RotateCharacter(movement);
         }
 
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D))
-        {
-            anim.SetBool("isWalking", true);
-        }
+        ApplyGravity();
+        MoveCharacter(movement);
+    }
 
-        if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.D))
-        {
-            anim.SetBool("isWalking", false);
-        }
+    void AnimateMovement(float horizontal, float vertical)
+    {
+        bool isWalking = (Mathf.Abs(horizontal) > 0.1f || Mathf.Abs(vertical) > 0.1f);
+        anim.SetBool("isWalking", isWalking);
+    }
 
-        Vector3 Movement = new Vector3(Horizontal, 0, Vertical);
-        Movement = Cam.transform.TransformDirection(Movement);
-        Movement.y = 0f;
-        Movement.Normalize();
-        Movement *= Speed * Time.deltaTime;
+    Vector3 CalculateMovement(float horizontal, float vertical)
+    {
+        Vector3 movement = new Vector3(horizontal, 0, vertical);
+        movement = cam.transform.TransformDirection(movement);
+        movement.y = 0f;
+        movement.Normalize();
+        return movement * speed * Time.deltaTime;
+    }
 
-        if (Movement.magnitude != 0f)
-        {
-            transform.rotation = Quaternion.LookRotation(new Vector3(Movement.x, 0, Movement.z));
-        }
+    void RotateCharacter(Vector3 movement)
+    {
+        transform.rotation = Quaternion.LookRotation(new Vector3(movement.x, 0, movement.z));
+    }
 
+    void ApplyGravity()
+    {
         if (!isGrounded)
         {
             verticalSpeed += Physics.gravity.y * Time.deltaTime;
         }
+    }
 
-        Movement.y = verticalSpeed * Time.deltaTime;
-        Controller.Move(Movement);
+    void MoveCharacter(Vector3 movement)
+    {
+        movement.y = verticalSpeed * Time.deltaTime;
+        controller.Move(movement);
+    }
+
+    void HandleJump()
+    {
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+            verticalSpeed = Mathf.Sqrt(jumpHeight * -2f * Physics.gravity.y);
+        }
+    }
+
+    void HandleDodge()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            isDodging = true;
+            dodgeTimer = 0f;
+            anim.SetTrigger("canDodge");
+        }
+    }
+
+    void Dodge()
+    {
+        dodgeTimer += Time.deltaTime;
+        if (dodgeTimer < dodgeDuration)
+        {
+            Vector3 dodgeDirection = transform.forward * dodgeDistance;
+            dodgeDirection.y = 0f;
+
+            controller.Move(dodgeDirection * Time.deltaTime);
+        }
+        else
+        {
+            isDodging = false;
+        }
     }
 }
