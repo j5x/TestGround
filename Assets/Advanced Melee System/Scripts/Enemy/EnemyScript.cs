@@ -84,6 +84,7 @@ public class EnemyScript : MonoBehaviour
                 // Apply posture damage to the player when the enemy collides with the player's weapon
                 ApplyPostureDamage(postureDMG);
             }
+            
         }
     }
 }

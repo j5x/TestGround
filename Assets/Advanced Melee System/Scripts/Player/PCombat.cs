@@ -14,6 +14,7 @@ public class PCombat : MonoBehaviour
     public bool blocking;
     public float posture;
     private bool postureBroken = false;
+    public bool slashing;
 
     // Start is called before the first frame update
     void Start()
@@ -80,7 +81,20 @@ public class PCombat : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
+            slashing = true;
             anim.SetTrigger("canSlash");
+            RaycastHit[] hits = Physics.SphereCastAll(transform.position, Radius, transform.forward, Radius);
+
+            foreach (RaycastHit hit in hits)
+            {
+                if (hit.collider.CompareTag("Enemy"))
+                {
+                    if (hit.collider.GetComponent<EnemyScript>().Parried())
+                    {
+                        OnSuccesFullParry?.Invoke();
+                    }
+                }
+            }
         }
     }
     
