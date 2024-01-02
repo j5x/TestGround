@@ -6,8 +6,8 @@ public class EnemyScript : MonoBehaviour
     private Animator _animator;
     private float distance;
     private bool parried;
-    [SerializeField] GameObject sword;
-    [SerializeField] private Material red, normal;
+    [SerializeField] GameObject Weapon;
+    [SerializeField] private Material ParryGlow, normal;
 
     [SerializeField] private float minDis;
     [SerializeField] private float postureDMG;
@@ -59,12 +59,12 @@ public class EnemyScript : MonoBehaviour
 
     private void ParrySignal()
     {
-        sword.GetComponent<MeshRenderer>().material = red;
+        Weapon.GetComponent<MeshRenderer>().material = ParryGlow;
     }
 
     private void ParrySignalStop()
     {
-        sword.GetComponent<MeshRenderer>().material = normal;
+        Weapon.GetComponent<MeshRenderer>().material = normal;
     }
 
     // Function to apply posture damage
